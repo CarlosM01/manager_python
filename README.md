@@ -33,5 +33,5 @@ A user manager writed with python
     pip install -r requirements.txt
 4. **Iniciar la aplicación**
     ```bash
-    API_URL=URL python3 main.py
+    API_URL=https://cb3c-191-118-27-88.ngrok-free.app/ python3 main.py
 ___
