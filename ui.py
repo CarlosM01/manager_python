@@ -1,7 +1,4 @@
-import os
 import tkinter as tk
-from tkinter import messagebox
-from api_request import Api
 
 class Window:
     def __init__(self, title, size):
@@ -58,5 +55,35 @@ class RegisterWindow(Window):
 
         tk.Button(self.window, text="Register", font=("Arial", 12), command=self.controller.register_user).pack(pady=20)
 
+class UpdateWindow(Window):
+    def __init__(self, controller, user_data):
+        super().__init__("Update User Data", "400x400")
+        self.controller = controller
+        self.user_data = user_data
+        self.create_widgets()
 
+    def create_widgets(self):
+        # Username (pre-cargar con el valor actual)
+        tk.Label(self.window, text="Username:", font=("Arial", 12)).pack(pady=5)
+        self.update_username_entry = tk.Entry(self.window, font=("Arial", 12))
+        self.update_username_entry.insert(0, self.user_data.get("username", ""))
+        self.update_username_entry.pack(pady=5)
 
+        # Email (pre-cargar con el valor actual)
+        tk.Label(self.window, text="Email:", font=("Arial", 12)).pack(pady=5)
+        self.update_email_entry = tk.Entry(self.window, font=("Arial", 12))
+        self.update_email_entry.insert(0, self.user_data.get("email", ""))
+        self.update_email_entry.pack(pady=5)
+
+        # New Password
+        tk.Label(self.window, text="New Password:", font=("Arial", 12)).pack(pady=5)
+        self.update_password_entry = tk.Entry(self.window, show="*", font=("Arial", 12))
+        self.update_password_entry.pack(pady=5)
+
+        # Confirm New Password
+        tk.Label(self.window, text="Confirm New Password:", font=("Arial", 12)).pack(pady=5)
+        self.update_confirm_password_entry = tk.Entry(self.window, show="*", font=("Arial", 12))
+        self.update_confirm_password_entry.pack(pady=5)
+
+        # Button to submit the update
+        tk.Button(self.window, text="Update", font=("Arial", 12), command=self.controller.update_user).pack(pady=20)

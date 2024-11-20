@@ -1,4 +1,4 @@
-from login_controller import LoginController
+from controller import Controller
 
 if __name__ == "__main__":
-    LoginController()
+    Controller()
