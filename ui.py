@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import messagebox
 from api_request import Api
@@ -5,9 +6,11 @@ from api_request import Api
 class LoginApp:
     def __init__(self):
         self.token = None
-        self.register_url = "http://localhost:8080/auth/register"
-        self.login_url = "http://localhost:8080/auth/login"
-        self.profile_url = "http://localhost:8080/auth/profile"
+        api_url = os.getenv('API_URL', 'http://localhost:8080/')
+        self.register_url = f"{api_url}auth/register/"
+        self.login_url = f"{api_url}auth/login/"
+        self.profile_url = f"{api_url}auth/profile/"
+        print(api_url, self.register_url, self.login_url, self.profile_url, sep='\n')
         self.show_login_window()
 
     def show_login_window(self):
@@ -43,6 +46,11 @@ class LoginApp:
         self.register_username_entry = tk.Entry(self.register_window, font=("Arial", 12))
         self.register_username_entry.pack(pady=5)
 
+        # Username field
+        tk.Label(self.register_window, text="Email:", font=("Arial", 12)).pack(pady=5)
+        self.register_email_entry = tk.Entry(self.register_window, font=("Arial", 12))
+        self.register_email_entry.pack(pady=5)
+
         # Password field
         tk.Label(self.register_window, text="Password:", font=("Arial", 12)).pack(pady=5)
         self.register_password_entry = tk.Entry(self.register_window, show="*", font=("Arial", 12))
@@ -76,12 +84,12 @@ class LoginApp:
         data = {"username": username, "email": email, "password": password, "role": "user"}
 
         try:
-            response = Api.post(self.register_url, data)
-            if response.get("success"):
+            res = Api.post(self.register_url, data)
+            if res.get("success"):
                 messagebox.showinfo("Success", "User registered successfully")
                 self.register_window.destroy()
             else:
-                error_message = response.get("error", "Unknown error")
+                error_message = res.get("error", "Unknown error")
                 messagebox.showerror("Registration Error", error_message)
         except Exception as e:
             messagebox.showerror("Critical Error", f"Unexpected error: {str(e)}")
@@ -97,14 +105,14 @@ class LoginApp:
         data = {"username": username, "password": password}
 
         try:
-            response = Api.post(self.login_url, data)
-            if response.get("success"):
-                self.token = response["token"]
+            res = Api.post(self.login_url, data)
+            if res.get("success"):
+                self.token = res["token"]
                 messagebox.showinfo("Success", "Login successful")
                 self.login_window.destroy()
                 self.show_profile_window()
             else:
-                error_message = response.get("error", "Unknown error")
+                error_message = res.get("error", "Unknown error")
                 messagebox.showerror("Login Error", error_message)
         except Exception as e:
             messagebox.showerror("Critical Error", f"Unexpected error: {str(e)}")
@@ -112,13 +120,13 @@ class LoginApp:
     def show_profile_window(self):
         headers = {"Authorization": f"Bearer {self.token}"}
         try:
-            response = Api.get(self.profile_url, headers=headers)
+            res = Api.get(self.profile_url, headers=headers)
         except Exception as e:
             messagebox.showerror("Error", f"Failed to fetch profile: {str(e)}")
             return
 
-        if "error" in response:
-            messagebox.showerror("Error", response["error"])
+        if "error" in res:
+            messagebox.showerror("Error", res["error"])
             return
 
         # Profile window
@@ -128,8 +136,9 @@ class LoginApp:
 
         # Display user info
         tk.Label(profile_window, text="Access Granted", font=("Arial", 16, "bold")).pack(pady=10)
-        tk.Label(profile_window, text=f"Username: {response.get('username', 'N/A')}", font=("Arial", 12)).pack(pady=5)
-        tk.Label(profile_window, text=f"Role: {response.get('role', 'N/A')}", font=("Arial", 12)).pack(pady=5)
+        tk.Label(profile_window, text=f"Username: {res.get('username', 'N/A')}", font=("Arial", 12)).pack(pady=5)
+        tk.Label(profile_window, text=f"Email: {res.get('email', 'N/A')}", font=("Arial", 12)).pack(pady=5)
+        tk.Label(profile_window, text=f"Role: {res.get('role', 'N/A')}", font=("Arial", 12)).pack(pady=5)
 
         # Logout button
         tk.Button(profile_window, text="Logout", font=("Arial", 12), command=lambda: self.logout(profile_window)).pack(pady=20)
